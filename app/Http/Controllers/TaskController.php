@@ -50,6 +50,9 @@ class TaskController extends Controller
      */
     public function show(string $id)
     {
+        $task = Task::findOrFail($id);
+
+        return view('tasks.show', ['task' => $task]);
     }
 
     /**
@@ -80,5 +83,20 @@ class TaskController extends Controller
         $task->delete();
 
         return redirect()->route('tasks.index')->with('success', 'Task excluída com sucesso!');
+    }
+
+    public function trashed()
+    {
+        $tasks = Task::onlyTrashed()->latest()->paginate(10);
+
+        return view('tasks.trashed', ['tasks' => $tasks]);
+    }
+
+    public function restore(string $id)
+    {
+        $task = Task::onlyTrashed()->findOrFail($id);
+        $task->restore();
+
+        return redirect()->route('tasks.trashed')->with('success', 'Task restaurada com sucesso!');
     }
 }
